@@ -1,0 +1,88 @@
+@startuml Lab09_Class_Diagram
+skinparam monochrome false
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam handwritten false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    ArrowColor #1A365D
+    BorderColor #2B6CB0
+}
+
+package "Models Layer" {
+    class Product {
+        + int Id
+        + string Title
+        + string Description
+        + string Image
+        + int Price
+        + int Quantity
+        + string Status
+    }
+
+    class ErrorViewModel {
+        + string? RequestId
+        + bool ShowRequestId
+    }
+}
+
+package "Data Access Layer (Raw ADO.NET)" {
+    class ProductRepository {
+        - readonly string _connectionString
+        + GetAllAsync() : Task<List<Product>>
+        + GetByIdAsync(id: int) : Task<Product?>
+        + CreateAsync(product: Product) : Task
+        + UpdateAsync(product: Product) : Task
+        + DeleteAsync(id: int) : Task
+        - {static} AddProductParameters(command: SqlCommand, product: Product) : void
+        - {static} MapProduct(reader: SqlDataReader) : Product
+    }
+
+    class DbInitializer {
+        + {static} InitializeAsync(configuration: IConfiguration, logger: ILogger) : Task
+    }
+}
+
+package "Controllers Layer (MVC Engine)" {
+    class ProductsController {
+        - readonly ProductRepository _repository
+        + ProductsController(repository: ProductRepository)
+        + Index() : Task<IActionResult>
+        + Create() : IActionResult
+        + Create(product: Product) : Task<IActionResult>
+        + Edit(id: int) : Task<IActionResult>
+        + Edit(id: int, product: Product) : Task<IActionResult>
+        + Delete(id: int) : Task<IActionResult>
+        + DeleteConfirmed(id: int) : Task<IActionResult>
+    }
+
+    class HomeController {
+        + Index() : IActionResult
+        + Privacy() : IActionResult
+        + Error() : IActionResult
+    }
+}
+
+package "Database Layer (MSSQL / LocalDB)" {
+    entity "dbo.products" as ProductsTable {
+        * Id : INT <<PK, IDENTITY>>
+        --
+        * Title : VARCHAR(50)
+        * description : VARCHAR(50)
+        * image : VARCHAR(255)
+        * price : INT
+        * quantity : INT
+        * status : VARCHAR(150)
+    }
+}
+
+ProductsController --> ProductRepository : delegates persistence ops
+ProductsController --> Product : accepts / returns models
+ProductRepository --> ProductsTable : executes parameterized SQL (CRUD)
+ProductRepository ..> Product : maps SqlDataReader to domain
+DbInitializer ..> ProductsTable : ensures schema & initial seeds
+@enduml

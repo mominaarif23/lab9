@@ -1,0 +1,24 @@
+## Visual Studio & .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+_ReSharper*/
+*.DotSettings.user
+*.patch
+*.diff
+
+## Test Results
+TestResults/
+[Tt]est[Rr]esult*
+coverage.json
+coverage.cobertura.xml
+
+## Local & Temporary files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

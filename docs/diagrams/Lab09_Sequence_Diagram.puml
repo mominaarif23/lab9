@@ -1,0 +1,105 @@
+@startuml Lab09_Sequence_Diagram
+skinparam monochrome false
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+
+skinparam sequence {
+    ArrowColor #1A365D
+    ActorBorderColor #1A365D
+    LifeLineBorderColor #2B6CB0
+    LifeLineBackgroundColor #EDF2F7
+    ParticipantBorderColor #2B6CB0
+    ParticipantBackgroundColor #F7FAFC
+}
+
+actor User as "Client / Browser"
+participant Controller as "ProductsController"
+participant Model as "Product Validation"
+participant Repo as "ProductRepository"
+database MSSQL as "dbo.products (MSSQL)"
+
+== 1. Catalog Browsing (Read) ==
+User -> Controller : GET /Products
+activate Controller
+Controller -> Repo : GetAllAsync()
+activate Repo
+Repo -> MSSQL : SELECT Id, Title, [description], [image], price, quantity, status FROM dbo.products ORDER BY Id DESC
+activate MSSQL
+MSSQL --> Repo : SqlDataReader rows
+deactivate MSSQL
+Repo --> Controller : List<Product>
+deactivate Repo
+Controller --> User : View("Index", List<Product>)
+deactivate Controller
+
+== 2. Product Insertion (Create) ==
+User -> Controller : GET /Products/Create
+User <-- Controller : View("Create")
+User -> Controller : POST /Products/Create (Form Data + AntiforgeryToken)
+activate Controller
+Controller -> Model : Validate(ModelState)
+alt ModelState Is Valid
+    Controller -> Repo : CreateAsync(product)
+    activate Repo
+    Repo -> MSSQL : INSERT INTO dbo.products (Title, description, image, price, quantity, status) VALUES (@Title, ...)
+    activate MSSQL
+    MSSQL --> Repo : RowsAffected = 1
+    deactivate MSSQL
+    Repo --> Controller : Task Completed
+    deactivate Repo
+    Controller -> Controller : Set TempData["Success"]
+    Controller --> User : RedirectToAction("Index")
+else ModelState Invalid
+    Controller --> User : View("Create", product) [Display Validation Errors]
+end
+deactivate Controller
+
+== 3. Product Modification (Update) ==
+User -> Controller : GET /Products/Edit/{id}
+Controller -> Repo : GetByIdAsync(id)
+Repo -> MSSQL : SELECT * FROM dbo.products WHERE Id = @Id
+MSSQL --> Repo : Product Row
+Repo --> Controller : Product
+Controller --> User : View("Edit", product)
+
+User -> Controller : POST /Products/Edit/{id} (Updated Fields)
+activate Controller
+alt id == product.Id && ModelState.IsValid
+    Controller -> Repo : UpdateAsync(product)
+    activate Repo
+    Repo -> MSSQL : UPDATE dbo.products SET Title=@Title, description=@Description, ... WHERE Id=@Id
+    activate MSSQL
+    MSSQL --> Repo : RowsAffected = 1
+    deactivate MSSQL
+    Repo --> Controller : Task Completed
+    deactivate Repo
+    Controller -> Controller : Set TempData["Success"]
+    Controller --> User : RedirectToAction("Index")
+else Invalid
+    Controller --> User : View("Edit", product)
+end
+deactivate Controller
+
+== 4. Safety-Gated Removal (Delete) ==
+User -> Controller : GET /Products/Delete/{id}
+Controller -> Repo : GetByIdAsync(id)
+Repo --> Controller : Product
+Controller --> User : View("Delete", product) [Confirmation Dialog]
+
+User -> Controller : POST /Products/Delete/{id} [ActionName("Delete")]
+activate Controller
+Controller -> Repo : DeleteAsync(id)
+activate Repo
+Repo -> MSSQL : DELETE FROM dbo.products WHERE Id = @Id
+activate MSSQL
+MSSQL --> Repo : RowsAffected = 1
+deactivate MSSQL
+Repo --> Controller : Task Completed
+deactivate Repo
+Controller -> Controller : Set TempData["Success"]
+Controller --> User : RedirectToAction("Index")
+deactivate Controller
+@enduml

@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Product Management System (PMS)";
+}
+
+<div class="py-5 text-center bg-light rounded-3 mb-4 shadow-sm">
+    <div class="container py-3">
+        <h1 class="display-5 fw-bold text-dark">Product Management System</h1>
+        <p class="col-md-8 mx-auto fs-5 text-muted">
+            ASP.NET Core MVC enterprise application with raw ADO.NET data access, Microsoft SQL Server integration, and responsive Bootstrap 5 CRUD interface.
+        </p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg px-4 gap-3">
+                <i class="bi bi-box-seam me-1"></i> Manage Products
+            </a>
+            <a asp-controller="Products" asp-action="Create" class="btn btn-outline-secondary btn-lg px-4">
+                + Add New Product
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 py-2 row-cols-1 row-cols-lg-3">
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-white p-4">
+            <div class="card-body">
+                <h3 class="fs-4 text-primary">MVC Pattern</h3>
+                <p class="text-secondary">Strict separation of concerns separating strongly-typed Product models, razor views, and ProductsController lifecycle routing.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-white p-4">
+            <div class="card-body">
+                <h3 class="fs-4 text-success">Raw ADO.NET</h3>
+                <p class="text-secondary">High-performance asynchronous data access using SqlConnection, SqlCommand, parameterized queries, and SqlDataReader streaming.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-white p-4">
+            <div class="card-body">
+                <h3 class="fs-4 text-warning">Full CRUD Engine</h3>
+                <p class="text-secondary">Create, Read catalog, Update existing records, and safety-gated Delete confirmation with client and server-side validation.</p>
+            </div>
+        </div>
+    </div>
+</div>

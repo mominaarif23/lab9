@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Lab9/">
+    <Project Path="Lab9/pms_mvc_example.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/pms_mvc_example.Tests/pms_mvc_example.Tests.csproj" />
+  </Folder>
+</Solution>
